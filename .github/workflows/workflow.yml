@@ -1,4 +1,4 @@
-name: Frontend Build and hosting in aws using Cloudfront and S3
+name: Frontend Build and Deploy to S3
 
 on:
   push:
@@ -6,24 +6,32 @@ on:
 
 jobs:
   build:
-    name: Build Dist File and Increase package.json and Copy to S3 and invalidate cloudfront
+    name: Build Dist
     runs-on: self-hosted
     steps:
-      - name: Github Checkout
+      - name: Checkout code
         uses: actions/checkout@v2
-      - name: Node version setup
+      - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "20"
-      - name: Install dependencies and build
+          node-version: '20'
+      - name: Install Dependencies
         run: |
-          yarn   
-          yarn install
-          yarn run build
+          npm install
+          npm run build
+      - name: Package.json version increase
+        run: |
+          git config --global user.name 'Sulav-Adhikari'
+          git config --global user.email 'sulav.adk.7@gmail.com'
+          npm version patch --no-git-tag-version
+          git add package.json
+          git commit -m "Increase version of package.json "
+          git push https://${{ secrets.WORKFLOW_TOKEN }}@github.com/Sulav-Adhikari/Frontend.git
 
-      - name: Push dist to S3 bucket
+      - name: Push dist's files to S3 bucket
         run: |
-          aws s3 cp ./dist/ s3://sulavfrontend --recursive
-      - name: Invalidate Cloudfront cache
+          aws s3 cp ./dist/ s3://sulavfrontend/ --recursive
+
+      - name: Invalidate CloudFront Cache
         run: |
           aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
