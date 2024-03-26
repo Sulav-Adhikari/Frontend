@@ -17,8 +17,8 @@ jobs:
           node-version: "20"
       - name: Install dependencies and build
         run: |
-          npm install
-          npm run build
+          yarn   
+          yarn run build
 
       - name: Push dist to S3 bucket
         run: |
