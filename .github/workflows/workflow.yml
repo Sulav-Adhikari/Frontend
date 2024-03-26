@@ -12,12 +12,13 @@ jobs:
       - name: Github Checkout
         uses: actions/checkout@v2
       - name: Node version setup
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v2
         with:
           node-version: "20"
       - name: Install dependencies and build
         run: |
           yarn   
+          yarn install
           yarn run build
 
       - name: Push dist to S3 bucket
